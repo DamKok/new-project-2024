@@ -94,16 +94,17 @@
             line-height: 1.4;
         }
         
-        /* Скрытый видеоплеер */
+        /* Видео на весь экран */
         #scaryVideo {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             object-fit: cover;
             z-index: 1000;
+            background: black;
         }
         
         /* Эффект мерцания для кнопки */
@@ -130,6 +131,10 @@
             .age-buttons {
                 flex-direction: column;
             }
+            
+            #scaryVideo {
+                object-fit: contain;
+            }
         }
     </style>
 </head>
@@ -152,7 +157,7 @@
     </div>
     
     <!-- Видео-скример (изначально скрыт) -->
-    <video id="scaryVideo" controls autoplay>
+    <video id="scaryVideo" autoplay>
         <source src="video-scary.mp4" type="video/mp4">
         Ваш браузер не поддерживает видео.
     </video>
@@ -163,7 +168,7 @@
             const exitBtn = document.getElementById('exitBtn');
             const scaryVideo = document.getElementById('scaryVideo');
             
-            // При нажатии "Мне нет 18 лет" - редирект
+            // При нажатии "Мне нет 18 лет" - редирект на Google
             exitBtn.addEventListener('click', function() {
                 window.location.href = 'https://www.google.com';
             });
@@ -179,8 +184,6 @@
                 // Запускаем видео со звуком
                 scaryVideo.play().catch(e => {
                     console.log('Ошибка воспроизведения видео:', e);
-                    // Если автовоспроизведение заблокировано, показываем сообщение
-                    alert('Для полного эффекта разрешите автовоспроизведение видео и звука в браузере');
                 });
                 
                 // На весь экран (опционально)
@@ -189,19 +192,23 @@
                 }
             });
             
-            // При завершении видео показываем сообщение
+            // При завершении видео - закрываем вкладку
             scaryVideo.addEventListener('ended', function() {
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: black; color: white; font-size: 24px; text-align: center;">
-                        <div>
-                            <h1>Это был розыгрыш! 😂</h1>
-                            <p>Надеемся, ты не слишком испугался(ась)</p>
-                            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                                Вернуться назад
-                            </button>
-                        </div>
-                    </div>
-                `;
+                // Закрываем вкладку (работает не во всех браузерах)
+                window.close();
+                
+                // Если не получилось закрыть - перенаправляем на Google
+                setTimeout(function() {
+                    window.location.href = 'https://www.google.com';
+                }, 100);
+            });
+            
+            // Дополнительно: закрытие по клику на видео
+            scaryVideo.addEventListener('click', function() {
+                window.close();
+                setTimeout(function() {
+                    window.location.href = 'https://www.google.com';
+                }, 100);
             });
         });
     </script>
