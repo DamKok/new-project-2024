@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступ к контенту 18+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .age-verification {
+            background: rgba(40, 40, 40, 0.9);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+        }
+        
+        .warning-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #ff4444;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .age-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn-yes {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .btn-yes:hover {
+            background: #ff2222;
+            transform: translateY(-2px);
+        }
+        
+        .btn-no {
+            background: #444;
+            color: #ccc;
+        }
+        
+        .btn-no:hover {
+            background: #555;
+        }
+        
+        .legal-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 25px;
+            line-height: 1.4;
+        }
+        
+        /* Скрытый видеоплеер */
+        #scaryVideo {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1000;
+        }
+        
+        /* Эффект мерцания для кнопки */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-yes {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Стили для мобильных */
+        @media (max-width: 600px) {
+            .age-verification {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .age-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Страница подтверждения возраста -->
+    <div class="age-verification">
+        <div class="warning-icon">⚠️</div>
+        <h1>ВНИМАНИЕ: КОНТЕНТ 18+</h1>
+        <p>Данный материал содержит контент, предназначенный исключительно для взрослой аудитории (лиц старше 18 лет).</p>
+        <p>Просмотр данного контента несовершеннолетними строго запрещен.</p>
+        
+        <div class="age-buttons">
+            <button class="btn btn-yes" id="confirmBtn">МНЕ ЕСТЬ 18 ЛЕТ</button>
+            <button class="btn btn-no" id="exitBtn">МНЕ НЕТ 18 ЛЕТ</button>
+        </div>
+        
+        <div class="legal-text">
+            Нажимая кнопку "Мне есть 18 лет", вы подтверждаете свой возраст и соглашаетесь с тем, что просматриваете данный контент на свой страх и риск.
+        </div>
+    </div>
+    
+    <!-- Видео-скример (изначально скрыт) -->
+    <video id="scaryVideo" controls autoplay>
+        <source src="video-scary.mp4" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+    </video>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmBtn = document.getElementById('confirmBtn');
+            const exitBtn = document.getElementById('exitBtn');
+            const scaryVideo = document.getElementById('scaryVideo');
+            
+            // При нажатии "Мне нет 18 лет" - редирект
+            exitBtn.addEventListener('click', function() {
+                window.location.href = 'https://www.google.com';
+            });
+            
+            // При нажатии "Мне есть 18 лет" - запуск скримера
+            confirmBtn.addEventListener('click', function() {
+                // Скрываем страницу подтверждения
+                document.querySelector('.age-verification').style.display = 'none';
+                
+                // Показываем видео
+                scaryVideo.style.display = 'block';
+                
+                // Запускаем видео со звуком
+                scaryVideo.play().catch(e => {
+                    console.log('Ошибка воспроизведения видео:', e);
+                    // Если автовоспроизведение заблокировано, показываем сообщение
+                    alert('Для полного эффекта разрешите автовоспроизведение видео и звука в браузере');
+                });
+                
+                // На весь экран (опционально)
+                if (scaryVideo.requestFullscreen) {
+                    scaryVideo.requestFullscreen();
+                }
+            });
+            
+            // При завершении видео показываем сообщение
+            scaryVideo.addEventListener('ended', function() {
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: black; color: white; font-size: 24px; text-align: center;">
+                        <div>
+                            <h1>Это был розыгрыш! 😂</h1>
+                            <p>Надеемся, ты не слишком испугался(ась)</p>
+                            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                Вернуться назад
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
