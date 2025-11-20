@@ -95,18 +95,37 @@
             line-height: 1.4;
         }
         
-        /* Видео на весь экран без элементов управления */
+        /* Видео 9:16 - адаптивное под любой экран */
         #scaryVideo {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
             z-index: 1000;
             background: black;
             cursor: none;
+            object-fit: cover;
+        }
+        
+        /* Для вертикальных экранов (мобильные) */
+        @media (max-aspect-ratio: 9/16) {
+            #scaryVideo {
+                width: 100%;
+                height: auto;
+            }
+        }
+        
+        /* Для горизонтальных экранов (компьютеры) */
+        @media (min-aspect-ratio: 9/16) {
+            #scaryVideo {
+                width: auto;
+                height: 100%;
+            }
         }
         
         /* Эффект мерцания для кнопки */
@@ -120,72 +139,67 @@
             animation: pulse 2s infinite;
         }
         
-        /* Скрываем все элементы управления */
-        video::-webkit-media-controls {
+        /* Скрываем все элементы управления во всех браузерах */
+        #scaryVideo::-webkit-media-controls {
             display: none !important;
         }
         
-        video::-webkit-media-controls-enclosure {
+        #scaryVideo::-webkit-media-controls-enclosure {
             display: none !important;
         }
         
-        video::-webkit-media-controls-panel {
+        #scaryVideo::-webkit-media-controls-panel {
             display: none !important;
         }
         
-        video::-webkit-media-controls-play-button {
+        #scaryVideo::-webkit-media-controls-play-button {
             display: none !important;
         }
         
-        video::-webkit-media-controls-timeline {
+        #scaryVideo::-webkit-media-controls-timeline {
             display: none !important;
         }
         
-        video::-webkit-media-controls-current-time-display {
+        #scaryVideo::-webkit-media-controls-current-time-display {
             display: none !important;
         }
         
-        video::-webkit-media-controls-time-remaining-display {
+        #scaryVideo::-webkit-media-controls-time-remaining-display {
             display: none !important;
         }
         
-        video::-webkit-media-controls-timeline-container {
+        #scaryVideo::-webkit-media-controls-timeline-container {
             display: none !important;
         }
         
-        video::-webkit-media-controls-volume-slider-container {
+        #scaryVideo::-webkit-media-controls-volume-slider-container {
             display: none !important;
         }
         
-        video::-webkit-media-controls-volume-slider {
+        #scaryVideo::-webkit-media-controls-volume-slider {
             display: none !important;
         }
         
-        video::-webkit-media-controls-mute-button {
+        #scaryVideo::-webkit-media-controls-mute-button {
             display: none !important;
         }
         
-        video::-webkit-media-controls-toggle-closed-captions-button {
+        #scaryVideo::-webkit-media-controls-toggle-closed-captions-button {
             display: none !important;
         }
         
-        video::-webkit-media-controls-fullscreen-button {
+        #scaryVideo::-webkit-media-controls-fullscreen-button {
             display: none !important;
         }
         
-        /* Стили для мобильных */
-        @media (max-width: 600px) {
-            .age-verification {
-                padding: 25px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .age-buttons {
-                flex-direction: column;
-            }
+        /* Для Firefox */
+        #scaryVideo::-moz-media-controls {
+            display: none !important;
+        }
+        
+        /* Для IE/Edge */
+        #scaryVideo::-ms-media-controls {
+            display: none !important;
         }
     </style>
 </head>
@@ -207,8 +221,8 @@
         </div>
     </div>
     
-    <!-- Видео-скример (изначально скрыт, без элементов управления) -->
-    <video id="scaryVideo" autoplay oncontextmenu="return false;">
+    <!-- Видео-скример 9:16 (изначально скрыт) -->
+    <video id="scaryVideo" autoplay oncontextmenu="return false;" playsinline>
         <source src="video-scary.mp4" type="video/mp4">
         Ваш браузер не поддерживает видео.
     </video>
@@ -221,8 +235,8 @@
             
             // Блокируем клавиши управления
             document.addEventListener('keydown', function(e) {
-                // Блокируем пробел, стрелки, ESC и другие медиа-клавиши
-                if ([32, 37, 38, 39, 40, 27].includes(e.keyCode)) {
+                // Блокируем пробел, стрелки, ESC, Tab, F5 и другие медиа-клавиши
+                if ([32, 37, 38, 39, 40, 27, 9, 116, 17, 18, 91].includes(e.keyCode)) {
                     e.preventDefault();
                     return false;
                 }
@@ -230,6 +244,18 @@
             
             // Блокируем контекстное меню (правый клик)
             document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Блокируем выделение текста
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Блокируем перетаскивание
+            document.addEventListener('dragstart', function(e) {
                 e.preventDefault();
                 return false;
             });
@@ -260,19 +286,46 @@
                 
                 // На весь экран
                 if (scaryVideo.requestFullscreen) {
-                    scaryVideo.requestFullscreen();
+                    scaryVideo.requestFullscreen().catch(e => {
+                        console.log('Полноэкранный режим не поддерживается');
+                    });
                 }
+                
+                // Блокируем выход из полноэкранного режима
+                document.addEventListener('fullscreenchange', function() {
+                    if (!document.fullscreenElement) {
+                        if (scaryVideo.requestFullscreen) {
+                            scaryVideo.requestFullscreen();
+                        }
+                    }
+                });
             });
             
             // При завершении видео - закрываем вкладку
             scaryVideo.addEventListener('ended', function() {
-                // Закрываем вкладку
-                window.close();
+                // Сначала выходим из полноэкранного режима
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
                 
-                // Если не получилось закрыть - перенаправляем на Google
+                // Затем закрываем вкладку
                 setTimeout(function() {
-                    window.location.href = 'https://www.google.com';
-                }, 100);
+                    window.close();
+                    
+                    // Если не получилось закрыть - перенаправляем на Google
+                    setTimeout(function() {
+                        window.location.href = 'https://www.google.com';
+                    }, 500);
+                }, 1000);
+            });
+            
+            // Предотвращаем закрытие страницы
+            window.addEventListener('beforeunload', function(e) {
+                if (scaryVideo.style.display === 'block' && !scaryVideo.ended) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
             });
         });
     </script>
